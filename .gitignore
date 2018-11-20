@@ -1,0 +1,4 @@
+#ignore ideal folder
+/.idea/modules.xml
+/.idea/vcs.xml
+.idea/
