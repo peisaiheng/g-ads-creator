@@ -88,6 +88,30 @@ func main() {
 
 	outputFileName := os.Args[2]
 
+	// Sale or Rent
+	forSale := true
+
+	fmt.Print("Is this list for Sale or Rent?\n\n" + "1) Sale\n" + "2) Rent\n\n" + "Select with 1 or 2:")
+	scanner := bufio.NewScanner(os.Stdin)
+	counter := 0
+	for scanner.Scan() {
+		if counter >= 2 {
+			fmt.Println(`Please execute the programme again`)
+			break
+		}
+		if scanner.Text() == "1" {
+			forSale = true
+			break
+		} else if scanner.Text() == "2" {
+			forSale = false
+			break
+		}
+		if scanner.Text() != "1" || scanner.Text() != "2" {
+			counter++
+			fmt.Print(`Please type only 1 or 2:`)
+		}
+	}
+
 	// Opens CSV
 	fileName := os.Args[1]
 	csvInputFile, err := os.Open(fileName)
@@ -153,7 +177,7 @@ func main() {
 			continue
 		} else {
 			// Do something with each au area row
-			processOutput(record, true)
+			processOutput1(record, forSale)
 		}
 
 	}

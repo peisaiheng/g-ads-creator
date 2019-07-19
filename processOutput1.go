@@ -6,30 +6,28 @@ import (
 	"strings"
 )
 
-func writeRow(rowMap map[int]string) {
-	rowArray := make([]string, 35, 35)
-	for key, value := range rowMap {
-		rowArray[key] = value
-	}
-	wOutput.Write(rowArray)
+func shortenPath (p string) string {
+	return strings.Replace(p,"station", "stn", -1)
 }
 
-func processOutput(record []string, forSale bool) {
+func processOutput1(record []string, forSale bool) {
 
-	var saleRent, inverseSaleRent string
+	var saleRent, inverseSaleRent, buyRent string
 	if forSale {
 		saleRent = "Sale"
 		inverseSaleRent = "Rent"
+		buyRent = "Buy"
 	} else {
 		saleRent = "Rent"
 		inverseSaleRent = "Sale"
+		buyRent = "Rent"
 	}
 	// Commonly used values
 	suburb, endingUrl, titledSuburb := record[0], record[1], strings.Title(record[0])
 	dashedSuburb := strings.Replace(record[0], " ", "-", -1)
 	saleRentLower := strings.ToLower(saleRent)
 
-	campaignName := `AU | Traffic - PPC | Areas - ` + saleRent
+	campaignName := `AU | Traffic - PPC | Stations - ` + saleRent
 	adGroupName := `AU | ` + titledSuburb + ` | For ` + saleRent
 
 	// Create AdGroup Details Row
@@ -93,8 +91,8 @@ func processOutput(record []string, forSale bool) {
 
 	siteLinksSlice := []sitelink{
 		{finalUrl: ForNewProjectAroundUrl, linkText: `New Homes - ` + titledSuburb, descriptionLine1: `Find New Homes For ` + saleRent},
-		{finalUrl: HouseAroundUrl, linkText: titledSuburb + ` Houses`, descriptionLine1: `Find Houses For ` + saleRent},
-		{finalUrl: ApartmentAroundUrl, linkText: titledSuburb + ` Apartments`, descriptionLine1: `Find Apartments For ` + saleRent},
+		{finalUrl: HouseAroundUrl, linkText: `Houses - ` + titledSuburb, descriptionLine1: `Find Houses For ` + saleRent},
+		{finalUrl: ApartmentAroundUrl, linkText: `Apartments - ` + titledSuburb, descriptionLine1: `Find Apartments For ` + saleRent},
 		{finalUrl: inverseSaleRentAroundUrl, linkText: `For ` + inverseSaleRent + ` - ` + titledSuburb, descriptionLine1: `Find Properties For ` + inverseSaleRent},
 	}
 
@@ -112,7 +110,7 @@ func processOutput(record []string, forSale bool) {
 			26: "All",
 			27: siteLinkStruct.linkText,
 			28: siteLinkStruct.descriptionLine1,
-			29: `in ` + titledSuburb,
+			29: `Around ` + titledSuburb,
 		}
 
 		writeRow(siteLinksMap)
@@ -121,13 +119,17 @@ func processOutput(record []string, forSale bool) {
 
 	// PREPARING ADS ROWS
 
-	adDescriptionLine1 := `Search properties for ` + saleRent + ` around ` + titledSuburb + `. Find your dream home on Soho.`
-	adDescriptionLine2 := "The fastest growing property network used by more than 18,000 property seekers."
+	adDescriptionLine1 := `Search properties for ` + saleRent + ` in ` + titledSuburb + `. Find your dream home on Soho.`
+	adDescriptionLine2 := "The fastest growing property network used by more than 39,000 property seekers."
+
+	if len(dashedSuburb) > 15 {
+		dashedSuburb = shortenPath(dashedSuburb)
+	}
 
 	adsSlice := []ad{
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: titledSuburb + ` Properties`, headline2: `For ` + saleRent + ` | Soho`, path1: "marketplace", path2: dashedSuburb},
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: `Homes For ` + saleRent + ` ` + titledSuburb, headline2: `Find Properties For ` + saleRent, path1: "marketplace", path2: dashedSuburb},
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: `Find Properties For ` + saleRent, headline2: titledSuburb + `, Australia`, path1: "marketplace", path2: dashedSuburb},
+		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: `Find Properties for ` + saleRent, headline2: `Around ` + titledSuburb, headline3: "Soho", path1: "marketplace", path2: dashedSuburb},
+		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: buyRent + ` Properties`, headline2: `Around ` + titledSuburb, headline3: "Soho", path1: "marketplace", path2: dashedSuburb},
+		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: titledSuburb, headline2: `Properties for ` + saleRent, headline3: "Soho", path1: "marketplace", path2: dashedSuburb},
 	}
 
 	for index, ad := range adsSlice {
@@ -140,6 +142,7 @@ func processOutput(record []string, forSale bool) {
 			29: ad.descriptionLine2,
 			30: ad.headline1,
 			31: ad.headline2,
+			32: ad.headline3,
 			33: ad.path1,
 			34: ad.path2,
 		}
