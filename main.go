@@ -15,49 +15,116 @@ var importHeaders = []string{
 	"url path",
 }
 
+const (
+	Campaign= "Campaign"
+	StartDate = "Start Date"
+	EndDate = "End Date"
+	AdSchedule = "Ad Schedule"
+	FlexibleReach = "Flexible Reach"
+	AdGroup = "Ad Group"
+	MaxCPC = "Max CPC"
+	MaxCPM = "Max CPM"
+	TargetCPA = "Target CPA"
+	DisplayNetworkCustomBidType = "Display Network Custom Bid Type"
+	TargetingOptimization = "Targeting optimization"
+	ContentKeywords = "Content keywords"
+	AdGroupType = "Ad Group Type"
+	Keyword = "Keyword"
+	CriterionType = "Criterion Type"
+	FirstPageBid = "First page bid"
+	TopOfPageBid = "Top of page bid"
+	FirstPositionBid = "First position bid"
+	QualityScore = "Quality score"
+	LandingPageExperience = "Landing page experience"
+	ExpectedCTR = "Expected CTR"
+	AdRelevance = "Ad relevance"
+	FinalURL = "Final URL"
+	FinalMobileURL = "Final mobile URL"
+	FeedName = "Feed Name"
+	PlatformTargeting = "Platform Targeting"
+	DevicePreference = "Device Preference"
+	LinkText = "Link Text"
+	DescriptionLine1 = "Description Line 1"
+	DescriptionLine2 = "Description Line 2"
+	Headline1 = "Headline 1"
+	Headline2 = "Headline 2"
+	Headline3 = "Headline 3"
+	Path1 = "Path 1"
+	Path2 = "Path 2"
+)
+
 // CSV export Headers
-var exportHeaders = []string{
-	"Campaign",
-	"Start Date",
-	"End Date",
-	"Ad Schedule",
-	"Flexible Reach",
-	"Ad Group",
-	"Max CPC",
-	"Max CPM",
-	"Target CPA",
-	"Display Network Custom Bid Type",
-	"Targeting optimization",
-	"Content keywords",
-	"Ad Group Type",
-	"Keyword",
-	"Criterion Type",
-	"First page bid",
-	"Top of page bid",
-	"First position bid",
-	"Quality score",
-	"Landing page experience",
-	"Expected CTR",
-	"Ad relevance",
-	"Final URL",
-	"Final mobile URL",
-	"Feed Name",
-	"Platform Targeting",
-	"Device Preference",
-	"Link Text",
-	"Description Line 1",
-	"Description Line 2",
-	"Headline 1",
-	"Headline 2",
-	"Headline 3",
-	"Path 1",
-	"Path 2",
+var rowHeader = map[string]int{
+	Campaign: 0,
+	StartDate: 1,
+	EndDate: 2,
+	AdSchedule: 3,
+	FlexibleReach: 4,
+	AdGroup: 5,
+	MaxCPC: 6,
+	MaxCPM: 7,
+	TargetCPA: 8,
+	DisplayNetworkCustomBidType: 9,
+	TargetingOptimization: 10,
+	ContentKeywords: 11,
+	AdGroupType: 12,
+	Keyword: 13,
+	CriterionType: 14,
+	FirstPageBid: 15,
+	TopOfPageBid: 16,
+	FirstPositionBid: 17,
+	QualityScore: 18,
+	LandingPageExperience: 19,
+	ExpectedCTR: 20,
+	AdRelevance: 21,
+	FinalURL: 22,
+	FinalMobileURL: 23,
+	FeedName: 24,
+	PlatformTargeting: 25,
+	DevicePreference: 26,
+	LinkText: 27,
+	DescriptionLine1: 28,
+	DescriptionLine2: 29,
+	Headline1: 30,
+	Headline2: 31,
+	Headline3: 32,
+	Path1: 33,
+	Path2: 34,
 }
 
 var wOutput *csv.Writer
 
-func addOutputHeader() error {
+/*func addOutputHeader() error {
+
+	// Create string of Array from rowHeader map
+	exportHeaders := make([]string, 35)
+
+	for key, value := range rowHeader {
+		exportHeaders[value] = key
+	}
+
 	err := wOutput.Write(exportHeaders)
+	return err
+}*/
+
+func reverseMap (mapStringInt map[string]int) map[int]string {
+
+	var rowHeader map[int]string
+	for key, value := range mapStringInt {
+		rowHeader[value] = key
+	}
+
+	return rowHeader
+}
+
+func writeRow(rowMap map[int]string) error {
+
+	rowArray := make([]string, 35, 35)
+	for key, value := range rowMap {
+		rowArray[key] = value
+	}
+
+	err := wOutput.Write(rowArray)
 	return err
 }
 
@@ -86,8 +153,6 @@ func main() {
 		return
 	}
 
-	outputFileName := os.Args[2]
-
 	// Sale or Rent
 	forSale := true
 
@@ -112,6 +177,8 @@ func main() {
 		}
 	}
 
+	outputFileName := os.Args[2]
+
 	// Opens CSV
 	fileName := os.Args[1]
 	csvInputFile, err := os.Open(fileName)
@@ -131,14 +198,16 @@ func main() {
 	if err != nil {
 
 		// Error while creating file
-		fmt.Println(`ERROR: Cannot create file.`)
-		fmt.Println(err)
+		fmt.Println(`ERROR: Cannot create file: `, err)
 	}
+
 	defer csvOutputFile.Close()
+
 	wOutput = csv.NewWriter(csvOutputFile)
 	defer wOutput.Flush()
 
 	// Using a flag instead of a range, I think it is more efficient.
+	// We know it's a new file as we created it. If name exist, there will be an err
 	isFirstRow := true
 
 	// Range CSV
@@ -169,9 +238,8 @@ func main() {
 
 				// If first row of input file is successfully checked.
 				// Add headers for output file.
-				if addOutputHeader() != nil {
-					fmt.Println(`ERROR ADDING HEADERS`)
-					fmt.Println(err)
+				if writeRow(reverseMap(rowHeader)) != nil {
+					fmt.Println(`ERROR ADDING HEADERS: `, err)
 				}
 			}
 			continue

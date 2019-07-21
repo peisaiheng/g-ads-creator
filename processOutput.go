@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-func writeRow(rowMap map[int]string) {
-	rowArray := make([]string, 35, 35)
-	for key, value := range rowMap {
-		rowArray[key] = value
-	}
-	wOutput.Write(rowArray)
-}
+//func writeRow(rowMap map[int]string) {
+//	rowArray := make([]string, 35, 35)
+//	for key, value := range rowMap {
+//		rowArray[key] = value
+//	}
+//	wOutput.Write(rowArray)
+//}
 
 func processOutput(record []string, forSale bool) {
 

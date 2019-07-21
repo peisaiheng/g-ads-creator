@@ -24,6 +24,7 @@ func processOutput1(record []string, forSale bool) {
 	}
 	// Commonly used values
 	suburb, endingUrl, titledSuburb := record[0], record[1], strings.Title(record[0])
+
 	dashedSuburb := strings.Replace(record[0], " ", "-", -1)
 	saleRentLower := strings.ToLower(saleRent)
 
@@ -32,16 +33,16 @@ func processOutput1(record []string, forSale bool) {
 
 	// Create AdGroup Details Row
 	detailsMap := map[int]string{
-		0:  campaignName,
-		4:  "Audiences",
-		5:  adGroupName,
-		6:  "0.9",
-		7:  "0.01",
-		8:  "0",
-		9:  "None",
-		10: "Disabled",
-		11: "Disabled",
-		12: "Default",
+		rowHeader[Campaign] :  campaignName,
+		rowHeader[FlexibleReach] : "Audiences",
+		rowHeader[AdGroup] : adGroupName,
+		rowHeader[MaxCPC] : "0.9",
+		rowHeader[MaxCPM] : "0.01",
+		rowHeader[TargetCPA] : "0",
+		rowHeader[DisplayNetworkCustomBidType] : "None",
+		rowHeader[TargetingOptimization] : "Disabled",
+		rowHeader[ContentKeywords] : "Disabled",
+		rowHeader[AdGroupType] : "Default",
 	}
 
 	writeRow(detailsMap)
@@ -83,11 +84,11 @@ func processOutput1(record []string, forSale bool) {
 
 	// PREPARING SITELINKS ROWS
 
-	saleRentAroundUrl := sohoMarketplacePath + `for-` + saleRentLower + `-around-` + endingUrl
-	inverseSaleRentAroundUrl := sohoMarketplacePath + `for-` + strings.ToLower(inverseSaleRent) + `-around-` + endingUrl
-	ForNewProjectAroundUrl := sohoMarketplacePath + `for-new_project-around-` + endingUrl
-	HouseAroundUrl := sohoMarketplacePath + `house-for-` + saleRentLower + `-around-` + endingUrl
-	ApartmentAroundUrl := sohoMarketplacePath + `apartment-for-` + saleRentLower + `-around-` + endingUrl
+	saleRentAroundUrl := sohoSearch + `for-` + saleRentLower + `-around-` + endingUrl
+	inverseSaleRentAroundUrl := sohoSearch + `for-` + strings.ToLower(inverseSaleRent) + `-around-` + endingUrl
+	ForNewProjectAroundUrl := sohoSearch + `for-new_project-around-` + endingUrl
+	HouseAroundUrl := sohoSearch + `house-for-` + saleRentLower + `-around-` + endingUrl
+	ApartmentAroundUrl := sohoSearch + `for-` + saleRentLower + `-around-` + endingUrl
 
 	siteLinksSlice := []sitelink{
 		{finalUrl: ForNewProjectAroundUrl, linkText: `New Homes - ` + titledSuburb, descriptionLine1: `Find New Homes For ` + saleRent},

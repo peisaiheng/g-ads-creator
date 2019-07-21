@@ -1,5 +1,6 @@
 package main
 
+
 type sitelink struct {
 	finalUrl,
 	linkText,
@@ -17,4 +18,4 @@ type ad struct {
 	path2 string
 }
 
-const sohoMarketplacePath = "https://sohoapp.com/search/"
+const sohoSearch = "https://sohoapp.com/search/"
