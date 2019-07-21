@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func shortenPath (p string) string {
-	return strings.Replace(p,"station", "stn", -1)
+func shortenPath(p string) string {
+	return strings.Replace(p, "station", "stn", -1)
 }
 
 func processOutput1(record []string, forSale bool) {
@@ -33,16 +33,16 @@ func processOutput1(record []string, forSale bool) {
 
 	// Create AdGroup Details Row
 	detailsMap := map[int]string{
-		rowHeader[Campaign] :  campaignName,
-		rowHeader[FlexibleReach] : "Audiences",
-		rowHeader[AdGroup] : adGroupName,
-		rowHeader[MaxCPC] : "0.9",
-		rowHeader[MaxCPM] : "0.01",
-		rowHeader[TargetCPA] : "0",
-		rowHeader[DisplayNetworkCustomBidType] : "None",
-		rowHeader[TargetingOptimization] : "Disabled",
-		rowHeader[ContentKeywords] : "Disabled",
-		rowHeader[AdGroupType] : "Default",
+		rowHeader[Campaign]:                    campaignName,
+		rowHeader[FlexibleReach]:               "Audiences",
+		rowHeader[AdGroup]:                     adGroupName,
+		rowHeader[MaxCPC]:                      "0.9",
+		rowHeader[MaxCPM]:                      "0.01",
+		rowHeader[TargetCPA]:                   "0",
+		rowHeader[DisplayNetworkCustomBidType]: "None",
+		rowHeader[TargetingOptimization]:       "Disabled",
+		rowHeader[ContentKeywords]:             "Disabled",
+		rowHeader[AdGroupType]:                 "Default",
 	}
 
 	writeRow(detailsMap)
@@ -91,10 +91,26 @@ func processOutput1(record []string, forSale bool) {
 	ApartmentAroundUrl := sohoSearch + `for-` + saleRentLower + `-around-` + endingUrl
 
 	siteLinksSlice := []sitelink{
-		{finalUrl: ForNewProjectAroundUrl, linkText: `New Homes - ` + titledSuburb, descriptionLine1: `Find New Homes For ` + saleRent},
-		{finalUrl: HouseAroundUrl, linkText: `Houses - ` + titledSuburb, descriptionLine1: `Find Houses For ` + saleRent},
-		{finalUrl: ApartmentAroundUrl, linkText: `Apartments - ` + titledSuburb, descriptionLine1: `Find Apartments For ` + saleRent},
-		{finalUrl: inverseSaleRentAroundUrl, linkText: `For ` + inverseSaleRent + ` - ` + titledSuburb, descriptionLine1: `Find Properties For ` + inverseSaleRent},
+		{
+			finalUrl:         ForNewProjectAroundUrl,
+			linkText:         `New Homes - ` + titledSuburb,
+			descriptionLine1: `Find New Homes For ` + saleRent,
+		},
+		{
+			finalUrl:         HouseAroundUrl,
+			linkText:         `Houses - ` + titledSuburb,
+			descriptionLine1: `Find Houses For ` + saleRent,
+		},
+		{
+			finalUrl:         ApartmentAroundUrl,
+			linkText:         `Apartments - ` + titledSuburb,
+			descriptionLine1: `Find Apartments For ` + saleRent,
+		},
+		{
+			finalUrl:         inverseSaleRentAroundUrl,
+			linkText:         `For ` + inverseSaleRent + ` - ` + titledSuburb,
+			descriptionLine1: `Find Properties For ` + inverseSaleRent,
+		},
 	}
 
 	for index, siteLinkStruct := range siteLinksSlice {
@@ -128,9 +144,36 @@ func processOutput1(record []string, forSale bool) {
 	}
 
 	adsSlice := []ad{
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: `Find Properties for ` + saleRent, headline2: `Around ` + titledSuburb, headline3: "Soho", path1: "marketplace", path2: dashedSuburb},
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: buyRent + ` Properties`, headline2: `Around ` + titledSuburb, headline3: "Soho", path1: "marketplace", path2: dashedSuburb},
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: titledSuburb, headline2: `Properties for ` + saleRent, headline3: "Soho", path1: "marketplace", path2: dashedSuburb},
+		{
+			finalUrl:         saleRentAroundUrl,
+			descriptionLine1: adDescriptionLine1,
+			descriptionLine2: adDescriptionLine2,
+			headline1:        `Find Properties for ` + saleRent,
+			headline2:        `Around ` + titledSuburb,
+			headline3:        "Soho",
+			path1:            "marketplace",
+			path2:            dashedSuburb,
+		},
+		{
+			finalUrl:         saleRentAroundUrl,
+			descriptionLine1: adDescriptionLine1,
+			descriptionLine2: adDescriptionLine2,
+			headline1:        buyRent + ` Properties`,
+			headline2:        `Around ` + titledSuburb,
+			headline3:        "Soho",
+			path1:            "marketplace",
+			path2:            dashedSuburb,
+		},
+		{
+			finalUrl:         saleRentAroundUrl,
+			descriptionLine1: adDescriptionLine1,
+			descriptionLine2: adDescriptionLine2,
+			headline1:        titledSuburb,
+			headline2:        `Properties for ` + saleRent,
+			headline3:        "Soho",
+			path1:            "marketplace",
+			path2:            dashedSuburb,
+		},
 	}
 
 	for index, ad := range adsSlice {
