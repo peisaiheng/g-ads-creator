@@ -9,12 +9,6 @@ import (
 	"strconv"
 )
 
-// CSV import Headers
-var importHeaders = []string{
-	"suburb",
-	"url path",
-}
-
 const (
 	Campaign= "Campaign"
 	StartDate = "Start Date"
@@ -54,7 +48,7 @@ const (
 )
 
 // CSV export Headers
-var rowHeader = map[string]int{
+var col = map[string]int{
 	Campaign: 0,
 	StartDate: 1,
 	EndDate: 2,
@@ -92,29 +86,24 @@ var rowHeader = map[string]int{
 	Path2: 34,
 }
 
+// CSV import Headers
+var importHeaders = []string{
+	"area",
+	"urlpath",
+}
+
 var wOutput *csv.Writer
-
-/*func addOutputHeader() error {
-
-	// Create string of Array from rowHeader map
-	exportHeaders := make([]string, 35)
-
-	for key, value := range rowHeader {
-		exportHeaders[value] = key
-	}
-
-	err := wOutput.Write(exportHeaders)
-	return err
-}*/
+var facetType string
+var country string
 
 func reverseMap (mapStringInt map[string]int) map[int]string {
 
-	var rowHeader map[int]string
+	col := map[int]string{}
 	for key, value := range mapStringInt {
-		rowHeader[value] = key
+		col[value] = key
 	}
 
-	return rowHeader
+	return col
 }
 
 func writeRow(rowMap map[int]string) error {
@@ -154,29 +143,15 @@ func main() {
 	}
 
 	// Sale or Rent
-	forSale := true
+	forSale := forSaleOrRent()
 
-	fmt.Print("Is this list for Sale or Rent?\n\n" + "1) Sale\n" + "2) Rent\n\n" + "Select with 1 or 2:")
-	scanner := bufio.NewScanner(os.Stdin)
-	counter := 0
-	for scanner.Scan() {
-		if counter >= 2 {
-			fmt.Println(`Please execute the programme again`)
-			break
-		}
-		if scanner.Text() == "1" {
-			forSale = true
-			break
-		} else if scanner.Text() == "2" {
-			forSale = false
-			break
-		}
-		if scanner.Text() != "1" || scanner.Text() != "2" {
-			counter++
-			fmt.Print(`Please type only 1 or 2:`)
-		}
-	}
+	// Facet Type
+	facetType = getFacetType()
 
+	// Country
+	country = getCountry()
+
+	// Output file name
 	outputFileName := os.Args[2]
 
 	// Opens CSV
@@ -194,7 +169,7 @@ func main() {
 	// Create and open output file before ranging input file.
 	// This way we won't be checking for file exist and opening and writing to file for each input row.
 	// Should be more efficient.
-	csvOutputFile, err := os.Create(`./` + outputFileName)
+	csvOutputFile, err := os.Create(outputFileName)
 	if err != nil {
 
 		// Error while creating file
@@ -238,14 +213,14 @@ func main() {
 
 				// If first row of input file is successfully checked.
 				// Add headers for output file.
-				if writeRow(reverseMap(rowHeader)) != nil {
+				if writeRow(reverseMap(col)) != nil {
 					fmt.Println(`ERROR ADDING HEADERS: `, err)
 				}
 			}
 			continue
 		} else {
 			// Do something with each au area row
-			processOutput1(record, forSale)
+			processOutput(record, forSale)
 		}
 
 	}

@@ -6,48 +6,52 @@ import (
 	"strings"
 )
 
-//func writeRow(rowMap map[int]string) {
-//	rowArray := make([]string, 35, 35)
-//	for key, value := range rowMap {
-//		rowArray[key] = value
-//	}
-//	wOutput.Write(rowArray)
-//}
+func shortenPath(p string) string {
+	switch facetType {
+	case Station:
+		return strings.Replace(p, "station", "stn", -1)
+	}
+	return p
+}
 
 func processOutput(record []string, forSale bool) {
 
-	var saleRent, inverseSaleRent string
+	var saleRent, inverseSaleRent, buyRent string
 	if forSale {
 		saleRent = "Sale"
 		inverseSaleRent = "Rent"
+		buyRent = "Buy"
 	} else {
 		saleRent = "Rent"
 		inverseSaleRent = "Sale"
+		buyRent = "Rent"
 	}
 	// Commonly used values
-	suburb, endingUrl, titledSuburb := record[0], record[1], strings.Title(record[0])
-	dashedSuburb := strings.Replace(record[0], " ", "-", -1)
-	saleRentLower := strings.ToLower(saleRent)
+	suburb, endingUrl, titledArea := record[0], record[1], strings.Title(record[0])
 
-	campaignName := `AU | Traffic - PPC | Areas - ` + saleRent
-	adGroupName := `AU | ` + titledSuburb + ` | For ` + saleRent
+	dashedArea := strings.Replace(record[0], " ", "-", -1)
+	saleRentLower := strings.ToLower(saleRent)
+	inverseSaleRentLower := strings.ToLower(inverseSaleRent)
+
+	campaignName := country + ` | Traffic - PPC | ` + facetType + ` - ` + saleRent
+	adGroupName := country + ` | ` + titledArea + ` | For ` + saleRent
 
 	// Create AdGroup Details Row
 	detailsMap := map[int]string{
-		0:  campaignName,
-		4:  "Audiences",
-		5:  adGroupName,
-		6:  "0.9",
-		7:  "0.01",
-		8:  "0",
-		9:  "None",
-		10: "Disabled",
-		11: "Disabled",
-		12: "Default",
+		col[Campaign]:                    campaignName,
+		col[FlexibleReach]:               "Audiences",
+		col[AdGroup]:                     adGroupName,
+		col[MaxCPC]:                      "0.9",
+		col[MaxCPM]:                      "0.01",
+		col[TargetCPA]:                   "0",
+		col[DisplayNetworkCustomBidType]: "None",
+		col[TargetingOptimization]:       "Disabled",
+		col[ContentKeywords]:             "Disabled",
+		col[AdGroupType]:                 "Default",
 	}
 
 	writeRow(detailsMap)
-	fmt.Println(titledSuburb + ` - Details row writen to CSV.`)
+	fmt.Println(titledArea + ` - Details row writen to CSV.`)
 
 	// PREPARING KEYWORD ROWS
 
@@ -67,84 +71,148 @@ func processOutput(record []string, forSale bool) {
 
 		// Create AdGroup Keywords Rows
 		keywordsMap := map[int]string{
-			0:  campaignName,
-			5:  adGroupName,
-			13: keywords[index],
-			14: "Exact",
-			15: "0",
-			16: "0",
-			17: "0",
-			19: "-",
-			20: "-",
-			21: "-",
+			col[Campaign]:              campaignName,
+			col[AdGroup]:               adGroupName,
+			col[Keyword]:               keywords[index],
+			col[CriterionType]:         "Exact",
+			col[FirstPageBid]:          "0",
+			col[TopOfPageBid]:          "0",
+			col[FirstPositionBid]:      "0",
+			col[LandingPageExperience]: "-",
+			col[ExpectedCTR]:           "-",
+			col[AdRelevance]:           "-",
 		}
 
 		writeRow(keywordsMap)
-		fmt.Println(titledSuburb + ` - Keyword ` + strconv.Itoa(index) + ` writen to CSV.`)
+		fmt.Println(titledArea + ` - Keyword ` + strconv.Itoa(index) + ` writen to CSV.`)
 	}
 
 	// PREPARING SITELINKS ROWS
 
-	saleRentAroundUrl := sohoMarketplacePath + `for-` + saleRentLower + `-around-` + endingUrl
-	inverseSaleRentAroundUrl := sohoMarketplacePath + `for-` + strings.ToLower(inverseSaleRent) + `-around-` + endingUrl
-	ForNewProjectAroundUrl := sohoMarketplacePath + `for-new_project-around-` + endingUrl
-	HouseAroundUrl := sohoMarketplacePath + `house-for-` + saleRentLower + `-around-` + endingUrl
-	ApartmentAroundUrl := sohoMarketplacePath + `apartment-for-` + saleRentLower + `-around-` + endingUrl
+	//Preposition for different facet type
+	var preposition, condoApt string
 
-	siteLinksSlice := []sitelink{
-		{finalUrl: ForNewProjectAroundUrl, linkText: `New Homes - ` + titledSuburb, descriptionLine1: `Find New Homes For ` + saleRent},
-		{finalUrl: HouseAroundUrl, linkText: titledSuburb + ` Houses`, descriptionLine1: `Find Houses For ` + saleRent},
-		{finalUrl: ApartmentAroundUrl, linkText: titledSuburb + ` Apartments`, descriptionLine1: `Find Apartments For ` + saleRent},
-		{finalUrl: inverseSaleRentAroundUrl, linkText: `For ` + inverseSaleRent + ` - ` + titledSuburb, descriptionLine1: `Find Properties For ` + inverseSaleRent},
+	if facetType == Station {
+		preposition = "around"
+	} else {
+		preposition = "in"
 	}
 
-	for index, siteLinkStruct := range siteLinksSlice {
+	switch country {
+	case Australia:
+		condoApt = "apartments"
+	case Singapore:
+		condoApt = "condominiums"
+	}
+
+	saleRentAroundUrl := sohoSearch + `for-` + saleRentLower + `-properties-` + preposition + `-` + endingUrl
+	inverseSaleRentAroundUrl := sohoSearch + `for-` + inverseSaleRentLower + `-properties-` + preposition + `-` + endingUrl
+	ForNewProjectAroundUrl := sohoSearch + `new-properties-` + preposition + `-` + endingUrl
+	HouseAroundUrl := sohoSearch + `for-` + saleRentLower + `-houses-` + preposition + `-` + endingUrl
+	ApartmentAroundUrl := sohoSearch + `for-` + saleRentLower + `-` + condoApt + `-` + preposition + `-` + endingUrl
+
+	siteLinksSlice := []sitelink{
+		{
+			finalUrl:         ForNewProjectAroundUrl,
+			linkText:         `New Homes - ` + titledArea,
+			descriptionLine1: `Find New Homes For ` + saleRent,
+		},
+		{
+			finalUrl:         HouseAroundUrl,
+			linkText:         `Houses - ` + titledArea,
+			descriptionLine1: `Find Houses For ` + saleRent,
+		},
+		{
+			finalUrl:         ApartmentAroundUrl,
+			linkText:         strings.TrimSuffix(strings.Title(condoApt), "miniums") + ` - ` + titledArea,
+			descriptionLine1: `Find ` + strings.Title(condoApt) + ` For ` + saleRent,
+		},
+		{
+			finalUrl:         inverseSaleRentAroundUrl,
+			linkText:         `For ` + inverseSaleRent + ` - ` + titledArea,
+			descriptionLine1: `Find Properties For ` + inverseSaleRent,
+		},
+	}
+
+	for index, sitelink := range siteLinksSlice {
 		// Create AdGroup SiteLinks Rows
 		siteLinksMap := map[int]string{
-			0:  campaignName,
-			1:  "[]",
-			2:  "[]",
-			3:  "[]",
-			5:  adGroupName,
-			22: siteLinkStruct.finalUrl,
-			24: "Main sitelink feed",
-			25: "All",
-			26: "All",
-			27: siteLinkStruct.linkText,
-			28: siteLinkStruct.descriptionLine1,
-			29: `in ` + titledSuburb,
+			col[Campaign]:          campaignName,
+			col[StartDate]:         "[]",
+			col[EndDate]:           "[]",
+			col[AdSchedule]:        "[]",
+			col[AdGroup]:           adGroupName,
+			col[FinalURL]:          sitelink.finalUrl,
+			col[FeedName]:          "Main sitelink feed",
+			col[PlatformTargeting]: "All",
+			col[DevicePreference]:  "All",
+			col[LinkText]:          sitelink.linkText,
+			col[DescriptionLine1]:  sitelink.descriptionLine1,
+			col[DescriptionLine2]:  `Around ` + titledArea,
 		}
 
 		writeRow(siteLinksMap)
-		fmt.Println(titledSuburb + ` - SiteLink ` + strconv.Itoa(index) + ` writen to CSV.`)
+		fmt.Println(titledArea + ` - SiteLink ` + strconv.Itoa(index) + ` writen to CSV.`)
 	}
 
 	// PREPARING ADS ROWS
 
-	adDescriptionLine1 := `Search properties for ` + saleRent + ` around ` + titledSuburb + `. Find your dream home on Soho.`
-	adDescriptionLine2 := "The fastest growing property network used by more than 18,000 property seekers."
+	adDescriptionLine1 := `Search properties for ` + saleRent + ` in ` + titledArea + `. Find your dream home on Soho.`
+	adDescriptionLine2 := "The fastest growing property network used by more than 45,000 property seekers."
+
+	if len(dashedArea) > 15 {
+		dashedArea = shortenPath(dashedArea)
+	}
 
 	adsSlice := []ad{
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: titledSuburb + ` Properties`, headline2: `For ` + saleRent + ` | Soho`, path1: "marketplace", path2: dashedSuburb},
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: `Homes For ` + saleRent + ` ` + titledSuburb, headline2: `Find Properties For ` + saleRent, path1: "marketplace", path2: dashedSuburb},
-		{finalUrl: saleRentAroundUrl, descriptionLine1: adDescriptionLine1, descriptionLine2: adDescriptionLine2, headline1: `Find Properties For ` + saleRent, headline2: titledSuburb + `, Australia`, path1: "marketplace", path2: dashedSuburb},
+		{
+			finalUrl:         saleRentAroundUrl,
+			descriptionLine1: adDescriptionLine1,
+			descriptionLine2: adDescriptionLine2,
+			headline1:        `Find Properties for ` + saleRent,
+			headline2:        `Around ` + titledArea,
+			headline3:        "Soho",
+			path1:            "search",
+			path2:            dashedArea,
+		},
+		{
+			finalUrl:         saleRentAroundUrl,
+			descriptionLine1: adDescriptionLine1,
+			descriptionLine2: adDescriptionLine2,
+			headline1:        buyRent + ` Properties`,
+			headline2:        `Around ` + titledArea,
+			headline3:        "Soho",
+			path1:            "search",
+			path2:            dashedArea,
+		},
+		{
+			finalUrl:         saleRentAroundUrl,
+			descriptionLine1: adDescriptionLine1,
+			descriptionLine2: adDescriptionLine2,
+			headline1:        titledArea,
+			headline2:        `Properties for ` + saleRent,
+			headline3:        "Soho",
+			path1:            "search",
+			path2:            dashedArea,
+		},
 	}
 
 	for index, ad := range adsSlice {
 		// Create AdGroup Ads Rows
-		siteLinksMap := map[int]string{
-			0:  campaignName,
-			5:  adGroupName,
-			22: ad.finalUrl,
-			28: ad.descriptionLine1,
-			29: ad.descriptionLine2,
-			30: ad.headline1,
-			31: ad.headline2,
-			33: ad.path1,
-			34: ad.path2,
+		adsMap := map[int]string{
+			col[Campaign]:         campaignName,
+			col[AdGroup]:          adGroupName,
+			col[FinalURL]:         ad.finalUrl,
+			col[DescriptionLine1]: ad.descriptionLine1,
+			col[DescriptionLine2]: ad.descriptionLine2,
+			col[Headline1]:        ad.headline1,
+			col[Headline2]:        ad.headline2,
+			col[Headline3]:        ad.headline3,
+			col[Path1]:            ad.path1,
+			col[Path2]:            ad.path2,
 		}
 
-		writeRow(siteLinksMap)
-		fmt.Println(titledSuburb + ` - Ad ` + strconv.Itoa(index) + ` writen to CSV.`)
+		writeRow(adsMap)
+		fmt.Println(titledArea + ` - Ad ` + strconv.Itoa(index) + ` writen to CSV.`)
 	}
 }
